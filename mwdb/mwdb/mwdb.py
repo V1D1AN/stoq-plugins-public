@@ -60,6 +60,7 @@ class Mwdb(WorkerPlugin):
         if isinstance(filename, bytes):
             filename = filename.decode()
         files = {'file': (filename, payload.content)}
-        cmd_send_mwdb = 'curl http://'+url+' -H "Authorization: Bearer '+str(headers['api-key'])+'" -F "file=@'+str(files['file'])+'" -X POST'
+        #cmd_send_mwdb = 'curl http://'+url+' -H "Authorization: Bearer '+str(headers['api-key'])+'" -F "file=@'+str(files['file'])+'" -X POST'
+        cmd_send_mwdb = 'curl http://'+url+' -H "Authorization: Bearer '+str(headers['api-key'])+'" -F "file=@'+str(filename)+'" -X POST'
         print(cmd_send_mwdb)
         os.system(cmd_send_mwdb)
