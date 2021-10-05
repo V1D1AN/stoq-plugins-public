@@ -56,4 +56,5 @@ class Mwdb(WorkerPlugin):
         headers["Authorization"] = "Bearer '{self.apikey}'"
         filename = payload.results.payload_meta.extra_data.get('filename')
         response = requests.post(url, files=filename, headers=headers)
+		print(response)
         results = response.json()	
