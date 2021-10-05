@@ -16,6 +16,5 @@ All options below may be set by:
 
 ### Options
 
-- `mwdb_url` [str]: URL for Falcon Sandbox
-
-- `apikey` [str]: Falcon Sandbox API key
+- `mwdb_url` [str]: URL for Mwdb
+- `apikey` [str]: Mwdb API key
