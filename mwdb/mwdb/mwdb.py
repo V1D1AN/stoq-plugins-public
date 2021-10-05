@@ -17,7 +17,7 @@
 Overview
 ========
 
-Scan payloads using Falcon Sandbox
+Send payload to Mwdb
 
 """
 
@@ -60,6 +60,7 @@ class Mwdb(WorkerPlugin):
         if isinstance(filename, bytes):
             filename = filename.decode()
         files = {'file': (filename, payload.content)}
+        print(files)
         cmd_send_mwdb = 'curl http://'+url+' -H "Authorization: Bearer '+headers+'" -F "file=@'+files+'" -X POST'
         os.system('echo "\n=================================================================="')
         os.system('echo "------------------------"')
