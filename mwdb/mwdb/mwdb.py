@@ -21,7 +21,7 @@ Send payload to Mwdb
 
 """
 
-import os
+
 import requests
 from time import sleep
 from json import JSONDecodeError
@@ -32,7 +32,6 @@ from stoq.plugins import WorkerPlugin
 from stoq.helpers import StoqConfigParser, get_sha1
 from stoq.exceptions import StoqPluginException
 from stoq import Error, Payload, Request, WorkerResponse
-
 
 class Mwdb(WorkerPlugin):
     def __init__(self, config: StoqConfigParser) -> None:
@@ -53,14 +52,10 @@ class Mwdb(WorkerPlugin):
 
         errors: List[Error] = []
         url = f'{self.mwdb_url}/api/file'
-        headers = {'api-key': self.apikey}
-        filename = payload.results.payload_meta.extra_data.get(
-            'filename'
-        )
+        headers = {'Authorization': 'Bearer ' + self.apikey}
+        filename = payload.results.payload_meta.extra_data.get('filename')
         if isinstance(filename, bytes):
             filename = filename.decode()
         files = {'file': (filename, payload.content)}
-        #cmd_send_mwdb = 'curl http://'+url+' -H "Authorization: Bearer '+str(headers['api-key'])+'" -F "file=@'+str(files['file'])+'" -X POST'
-        cmd_send_mwdb = 'curl http://'+url+' -H "Authorization: Bearer '+str(headers['api-key'])+'" -F "file=@'+str(filename)+'" -X POST'
-        print(cmd_send_mwdb)
-        os.system(cmd_send_mwdb)
+        response = requests.post(url, files=files, headers=headers)
+        results = response.json()
