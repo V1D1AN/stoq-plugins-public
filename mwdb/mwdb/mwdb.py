@@ -28,12 +28,12 @@ from json import JSONDecodeError
 from configparser import ConfigParser
 from typing import Dict, Optional, Union, Tuple, List
 
-from stoq.plugins import WorkerPlugin
+from stoq.plugins import ArchiverPlugin
 from stoq.helpers import StoqConfigParser, get_sha1
 from stoq.exceptions import StoqPluginException
-from stoq import Error, Payload, Request, WorkerResponse
+from stoq import Error, Payload, Request, ArchiverResponse
 
-class Mwdb(WorkerPlugin):
+class Mwdb(ArchiverPlugin):
     def __init__(self, config: StoqConfigParser) -> None:
         super().__init__(config)
 
@@ -44,7 +44,7 @@ class Mwdb(WorkerPlugin):
         if not self.apikey:
             raise StoqPluginException("Mwdb API Key was not provided")
 
-    async def scan(self, payload: Payload, request: Request) -> WorkerResponse:
+    async def archive(self, payload: Payload, request: Request) -> ArchiverResponse:
         """
         Send payloads to mwdb
 
