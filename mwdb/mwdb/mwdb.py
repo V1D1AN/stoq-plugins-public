@@ -21,11 +21,7 @@ Send payload to Mwdb
 
 """
 
-<<<<<<< HEAD
 
-=======
-#import os
->>>>>>> 6fe12be13d2f15d8c9724b22c73723b291cdca16
 import requests
 from time import sleep
 from json import JSONDecodeError
@@ -56,7 +52,6 @@ class Mwdb(WorkerPlugin):
 
         errors: List[Error] = []
         url = f'{self.mwdb_url}/api/file'
-<<<<<<< HEAD
         headers = {'Authorization': 'Bearer ' + self.apikey}
         filename = payload.results.payload_meta.extra_data.get('filename')
         if isinstance(filename, bytes):
@@ -64,10 +59,3 @@ class Mwdb(WorkerPlugin):
         files = {'file': (filename, payload.content)}
         response = requests.post(url, files=files, headers=headers)
         results = response.json()
-=======
-        headers["Authorization"] = "Bearer " + self.apikey
-        filename = payload.results.payload_meta.extra_data.get('filename')
-        response = requests.post(url, files=filename, headers=headers)
-		print(response)
-        results = response.json()	
->>>>>>> 6fe12be13d2f15d8c9724b22c73723b291cdca16
