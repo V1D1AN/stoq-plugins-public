@@ -20,14 +20,6 @@ Scan content with ClamAV
 
 """
 
-"""
-Overview
-========
-
-Scan content with ClamAV
-
-"""
-
 import time
 import argparse
 import pyclamd
