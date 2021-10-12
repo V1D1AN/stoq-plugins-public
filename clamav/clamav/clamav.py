@@ -20,114 +20,47 @@ Scan content with ClamAV
 
 """
 
+"""
+Overview
+========
+
+Scan content with ClamAV
+
+"""
+
 import time
 import argparse
 import pyclamd
 import threading
 
-from stoq.args import StoqArgs
-from stoq.plugins import StoqWorkerPlugin
+from stoq.plugins import WorkerPlugin
+from stoq.helpers import StoqConfigParser
+from stoq.exceptions import StoqPluginException
+from stoq import Error, Payload, Request, WorkerResponse
 
+class ClamAvScan(WorkerPlugin):
 
-class ClamAvScan(StoqWorkerPlugin):
+    def __init__(self, config: StoqConfigParser) -> None:
+        super().__init__(config)
+        self.host = config.get('options', 'host', fallback=None)
+        if not self.host:
+            raise StoqPluginException("Clamav host was not provided")
+        self.port = config.getint('options', 'port', fallback=None)
+        if not self.port:
+            raise StoqPluginException("Clamav port was not provided")
+        self.timeout = config.getint('options', 'timeout', fallback=None)
+        if not self.timeout:
+            raise StoqPluginException("Clamav timeout was not provided")
 
-    def __init__(self):
-        super().__init__()
-        self.clamd_lock = threading.Lock()
-        self.wants_heartbeat = True
-
-    def activate(self, stoq):
-        self.stoq = stoq
-
-        parser = argparse.ArgumentParser()
-        parser = StoqArgs(parser)
-
-        options = parser.parse_args(self.stoq.argv[2:])
-        super().activate(options=options)
-
-        # Make sure our options are the proper type
-        self.timeout = float(self.timeout)
-        self.port = int(self.port)
-        self.interval = int(self.interval)
-
-        self._connect()
-
-        if not self.clamd:
-            return False
-
-        return True
-
-    def deactivate(self):
-        self.heartbeat_thread.terminate()
-
-    def scan(self, payload, **kwargs):
-        """
-        Scan content with ClamAV
-
-        :param bytes payload: Payload to be scanned
-        :param **kwargs kwargs: Additional arguments (unused)
-
-        :returns: Results from scan
-        :rtype: dict or None
-
-        """
-
-        super().scan()
-
-        results = {}
-
-        self.clamd_lock.acquire()
+    async def scan(self, payload: Payload, request: Request) -> WorkerResponse:
         try:
-            hit = self.clamd.scan_stream(payload)
-            results['sig'] = hit['stream'][1]
-        except IOError as err:
-            self.log.warn("Unable to scan payload: {}".format(err))
-        except ValueError as err:
-            self.log.warn("Payload buffer too large: {}".format(err))
-        except TypeError:
-            pass
-        finally:
-            self.clamd_lock.release()
-
-        if results:
-            return results
-        else:
-            return None
-
-    def heartbeat(self):
-        """
-        Periodically ping the clam server to keep alive
-
-        """
-
-        while True:
-            success = False
-            self.clamd_lock.acquire()
+            clamav = pyclamd.ClamdUnixSocket()
+            clamav.ping()
+        except pyclamd.ConnectionError:
+            clamav = pyclamd.ClamdNetworkSocket(self.host,self.port,timeout=None)
             try:
-                self.clamd.ping()
-                success = True
-            except AttributeError:
-                success = False
+                clamav.ping()
+                results = clamav.scan_stream(payload.content)
             except pyclamd.ConnectionError:
-                self.log.warn("Unable to connect to ClamAV. Attempting to connect.")
-                success = False
-            finally:
-                self.clamd_lock.release()
-            if not success:
-                self._connect()
-            time.sleep(self.interval)
-
-    def _connect(self):
-        """
-        Connect to clam server
-
-        """
-        self.clamd_lock.acquire()
-        if self.daemon == 'network':
-            self.clamd = pyclamd.ClamdNetworkSocket(host=self.host,
-                                                    port=self.port,
-                                                    timeout=self.timeout)
-        else:
-            self.clamd = pyclamd.ClamdUnixSocket(filename=self.socket,
-                                                 timeout=self.timeout)
-        self.clamd_lock.release()
+                raise ValueError('Could not connect to clamd server')
+        return WorkerResponse(results=results)
