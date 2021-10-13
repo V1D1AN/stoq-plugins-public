@@ -16,7 +16,7 @@
 Overview
 ========
 
-Scan content with ClamAV
+Scan content with Capa
 
 """
 
@@ -29,7 +29,7 @@ from stoq.helpers import StoqConfigParser
 from stoq.exceptions import StoqPluginException
 from stoq import Error, Payload, Request, WorkerResponse
 
-class ClamAvScan(WorkerPlugin):
+class CapaScan(WorkerPlugin):
 
     def __init__(self, config: StoqConfigParser) -> None:
         super().__init__(config)
