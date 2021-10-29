@@ -49,7 +49,7 @@ class ClamAvScan(WorkerPlugin):
             clamav = pyclamd.ClamdUnixSocket()
             clamav.ping()
         except pyclamd.ConnectionError:
-            clamav = pyclamd.ClamdNetworkSocket(self.host,self.port,timeout=None)
+            clamav = pyclamd.ClamdNetworkSocket(self.host,self.port,timeout=self.timeout)
             try:
                 clamav.ping()
                 results = clamav.scan_stream(payload.content)
