@@ -31,7 +31,8 @@ from stoq import Payload, Request, WorkerResponse, DispatcherResponse
 
 
 class VTMISSearchPlugin(WorkerPlugin, DispatcherPlugin):
-    API_URL = 'https://www.virustotal.com/vtapi/v2'
+    API_URL = 'https://www.virustotal.com/api/v3'
+    #API_URL = 'https://www.virustotal.com/vtapi/v2'
     ENDPOINTS = {
         'ipv4': ('ip', '/ip-address/report', False),
         'url': ('resource', '/url/report', True),
